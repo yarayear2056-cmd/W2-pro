@@ -45,6 +45,42 @@ def dedupe_keep_latest(df: pd.DataFrame, key_cols: list[str], ts_col: str) -> pd
     return deduped.reset_index(drop=True)
 
 
+def parse_datetime(df: pd.DataFrame, col: str, *, utc: bool = True) -> pd.DataFrame:
+    D = pd.to_datetime(df[col], errors="coerce", utc=utc)
+    return df.assign(**{col: D})
+
+
+def add_time_parts(df: pd.DataFrame, ts_col: str) -> pd.DataFrame:
+    time = df[ts_col]
+    return df.assign(
+        date = time.dt.date,
+        month = time.dt.to_period("M").astype("string"),
+        year = time.dt.year,
+        dow= time.dt.day_name(),
+        hour= time.dt.hour,
+    )
+
+
+def iqr_bounds(s: pd.Series, k: float = 1.5) -> tuple[float, float]:
+    x= s.dropna()
+    Q1 = x.quantile(0.25)
+    Q3 = x.quantile(0.75)
+    IQR = Q3 - Q1
+    low = Q1 - k * IQR
+    up = Q3 + k * IQR
+    return float(low), float(up)
+
+
+def winsorize(s: pd.Series, lo: float = 0.01, hi: float = 0.99) -> pd.Series:
+    x= s.dropna()
+    l , u = x.quantile(lo), x.quantile(hi)
+    return s.clip(lower= l, upper= u)
+
+def add_outlier_flag(df: pd.DataFrame, col: str, *, k: float = 1.5) -> pd.DataFrame:
+    df = df.copy()
+    low, up = iqr_bounds(df[col], k=k)
+    df = df.assign(**{f"{col}__is_outlier": (df[col] < low) | (df[col] > up)})
+    return df
 
 
 
