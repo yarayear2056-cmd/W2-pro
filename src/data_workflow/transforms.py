@@ -37,7 +37,8 @@ def normalize_text(s: pd.Series) -> pd.Series:
     )
 
 def apply_mapping(s: pd.Series, mapping: dict[str, str]) -> pd.Series:
-    return s.map(mapping).fillna(s)
+    return  s.map(lambda x: mapping.get(x, x))
+
 
 def dedupe_keep_latest(df: pd.DataFrame, key_cols: list[str], ts_col: str) -> pd.DataFrame:
     sorted= df.sort_values(ts_col, ascending=False)
@@ -46,8 +47,8 @@ def dedupe_keep_latest(df: pd.DataFrame, key_cols: list[str], ts_col: str) -> pd
 
 
 def parse_datetime(df: pd.DataFrame, col: str, *, utc: bool = True) -> pd.DataFrame:
-    D = pd.to_datetime(df[col], errors="coerce", utc=utc)
-    return df.assign(**{col: D})
+    dt = pd.to_datetime(df[col], errors="coerce", utc=utc)
+    return df.assign(**{col: dt})
 
 
 def add_time_parts(df: pd.DataFrame, ts_col: str) -> pd.DataFrame:

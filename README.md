@@ -72,6 +72,12 @@ powershell
 $env:PYTHONPATH="src"
 python scripts/run_day1_load.py
 ```
+```
+day2:
+
+$env:PYTHONPATH = "src"
+python scripts/run_day2_clean.py
+```
 
 
 ### For Mac & Linux Users
@@ -79,4 +85,11 @@ python scripts/run_day1_load.py
 ```
 export PYTHONPATH=src
 python3 scripts/run_day1_load.py
+```
+
+```
+day2:
+
+export PYTHONPATH=src
+python3 scripts/run_day2_clean.py
 ```

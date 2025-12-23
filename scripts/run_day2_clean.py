@@ -1,24 +1,28 @@
 import logging
 import sys
+import json
 from pathlib import Path
-
-from data_workflow.config import make_paths
-from data_workflow.io import read_orders_csv, read_parquet, read_users_csv, write_parquet
-from data_workflow.transforms import enforce_schema, missingness_report, add_missing_flags, normalize_text, apply_mapping
-from data_workflow.quality import require_columns, assert_non_empty, assert_in_range
-
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from data_workflow.config import make_paths
+from data_workflow.io import read_orders_csv, read_users_csv, write_parquet
+from data_workflow.transforms import enforce_schema, missingness_report, add_missing_flags, normalize_text, apply_mapping
+from data_workflow.quality import require_columns, assert_non_empty, assert_in_range, assert_unique_key
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+
+
+
 
 def main():
-    r= make_paths(ROOT)
+    P= make_paths(ROOT)
     log.info("Loading row inputs")
-    ord= read_orders_csv(r.raw / "orders.csv")
-    us= read_users_csv(r.raw / "users.csv")
+    ord= read_orders_csv(P.raw / "orders.csv")
+    us= read_users_csv(P.raw / "users.csv")
     log.info("rows: orders=%s , users=%s", len(ord), len(us))
 
     require_columns(ord, ["order_id", "user_id", "amount", "quantity", "status", "created_at"])
@@ -26,14 +30,15 @@ def main():
     assert_non_empty(ord, "orders")
     assert_non_empty(us, "users")
 
+    assert_unique_key(us, "user_id")  #optional Day2
+
+
     ord= enforce_schema(ord)
 
-    rp= missingness_report(ord)
-    rep_dir= ROOT / "reports"
-    rep_dir.mkdir(parents=True, exist_ok=True)
-    r_path= rep_dir/"orders_missingness.csv"
-    rp.to_csv(r_path, index=True)
-    log.info("wrote missingness report to %s", r_path)
+    rep = missingness_report(ord)
+    rep_path = P.reports / "missingness_orders.csv"
+    rep.to_csv(rep_path)
+    log.info("saved in report %s", rep_path)
 
     sta_nor= normalize_text(ord["status"])
     mapping= {"paid":"paid", "pending":"pending", "canceled":"canceled", "cancelled":"canceled", "refunded":"refund"}
@@ -47,9 +52,23 @@ def main():
     assert_in_range(ord_clean["amount"],lo=0,name= 'amount')
     assert_in_range(ord_clean["quantity"],lo=0,name= 'quantity')
 
-    write_parquet(ord_clean, r.processed / "orders_clean.parquet")
-    write_parquet(us, r.processed / "users.parquet")
-    log.info("Wrote processed outputs to %s ", r.processed / "orders_clean.parquet")
+    #optional Day2
+    summary = {
+        "row_count":{
+            "ord_raw":len(ord),
+            "ord_clean":len(ord_clean),
+            "users":len(us),
+        },
+        "top_3_missing_cols": rep['p_missing'].head(3).to_dict()
+    }
+    summary_path = P.reports / "data_summary.json"
+    with open(summary_path, "w") as f:
+        json.dump(summary, f, indent=2)
+    log.info("Saved data summary to %s", summary_path)
+
+    write_parquet(ord_clean, P.processed / "orders_clean.parquet")
+    write_parquet(us, P.processed / "users.parquet")
+    log.info("Wrote processed outputs to %s ", P.processed / "orders_clean.parquet")
 
 if __name__ == "__main__":
     main()

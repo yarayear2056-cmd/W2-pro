@@ -12,6 +12,7 @@ from data_workflow.transforms import parse_datetime, add_time_parts, winsorize, 
 from data_workflow.joins import safe_left_join
 from data_workflow.config import make_paths
 paths = make_paths(ROOT)
+paths.reports.mkdir(parents=True, exist_ok=True)
 
 
 logging.basicConfig(level=logging.INFO)
@@ -53,13 +54,29 @@ def main():
 
     log.info("Handling outliers in 'amount' column...")
     joined = joined.assign(amount_winsor=winsorize(joined["amount"]))
-    
     joined = add_outlier_flag(joined, "amount", k=1.5)
+
+    log.info("Generating revenue summary by country...")
+    
+    summ_st = (
+        joined.groupby("country", dropna=False)
+        .agg(
+            n_orders=("order_id", "size"),
+            total_revenue=("amount", "sum")
+        )
+        .reset_index()
+        .sort_values("total_revenue", ascending=False)
+    )
+    
+    print("\n--- Revenue Summary Table ---")
+    print(summ_st.to_string(index=False))
+    summ_st.to_csv(paths.reports / "revenue_by_country.csv", index=False)
+
 
     out_path = paths.processed / "analytics_table.parquet"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     joined.to_parquet(out_path, index=False)
-    
+
     log.info(" Success! Analytics table written to: %s", out_path)
 
 if __name__ == "__main__":

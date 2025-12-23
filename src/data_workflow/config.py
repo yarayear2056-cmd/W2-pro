@@ -1,6 +1,5 @@
-import pathlib as Path
+from pathlib import Path
 from dataclasses import dataclass
-
 
 @dataclass(frozen=True)
 class Paths:
@@ -9,6 +8,7 @@ class Paths:
     processed: Path
     external: Path
     cache: Path
+    reports: Path 
 
 
 def make_paths(root: Path) -> Paths:
@@ -19,4 +19,5 @@ def make_paths(root: Path) -> Paths:
         cache=data / "cache",
         processed=data / "processed",
         external=data / "external",
+        reports=root / "reports",
     )
