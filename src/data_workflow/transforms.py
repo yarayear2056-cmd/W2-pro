@@ -52,13 +52,13 @@ def parse_datetime(df: pd.DataFrame, col: str, *, utc: bool = True) -> pd.DataFr
 
 
 def add_time_parts(df: pd.DataFrame, ts_col: str) -> pd.DataFrame:
-    time = df[ts_col]
+    ts = df[ts_col]
     return df.assign(
-        date = time.dt.date,
-        month = time.dt.to_period("M").astype("string"),
-        year = time.dt.year,
-        dow= time.dt.day_name(),
-        hour= time.dt.hour,
+        date = ts.dt.date,
+        month = ts.dt.to_period("M").astype("string"),
+        year = ts.dt.year,
+        dow= ts.dt.day_name(),
+        hour= ts.dt.hour,
     )
 
 

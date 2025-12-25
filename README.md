@@ -39,7 +39,7 @@ This project implements a professional, "offline-first" data pipeline designed t
 pip install -r requirements.txt
 
 **2.Execute the Pipeline:**
->python scripts/run_etl.py
+>uv run scripts/run_etl.py
 
 
 ### More Info 
@@ -113,13 +113,13 @@ Open your Terminal in the project root directory and use the command for your op
 ```
 powershell
 $env:PYTHONPATH="src"
-python scripts/run_day1_load.py
+uv run scripts/run_day1_load.py
 ```
 ```
 day2:
 
 $env:PYTHONPATH = "src"
-python scripts/run_day2_clean.py
+uv run scripts/run_day2_clean.py
 ```
 
 
@@ -127,12 +127,12 @@ python scripts/run_day2_clean.py
 
 ```
 export PYTHONPATH=src
-python3 scripts/run_day1_load.py
+uv run scripts/run_day1_load.py
 ```
 
 ```
 day2:
 
 export PYTHONPATH=src
-python3 scripts/run_day2_clean.py
+uv run scripts/run_day2_clean.py
 ```
