@@ -16,8 +16,6 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-
-
 def main():
     P= make_paths(ROOT)
     log.info("Loading row inputs")

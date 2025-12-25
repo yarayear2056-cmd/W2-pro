@@ -56,6 +56,10 @@ def main():
     joined = joined.assign(amount_winsor=winsorize(joined["amount"]))
     joined = add_outlier_flag(joined, "amount", k=1.5)
 
+    joined_clean = joined.dropna(subset=["created_at", "amount"])
+    joined_clean["month"] = joined_clean["created_at"].dt.to_period("M").dt.to_timestamp()
+
+
     log.info("Generating revenue summary by country...")
     
     summ_st = (
