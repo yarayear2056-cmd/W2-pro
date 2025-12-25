@@ -73,7 +73,7 @@ def main():
     summ_st.to_csv(paths.reports / "revenue_by_country.csv", index=False)
 
 
-    out_path = paths.processed / "analytics_table.parquet"
+    out_path = paths.processed / "analytics_table.parquet"####
     out_path.parent.mkdir(parents=True, exist_ok=True)
     joined.to_parquet(out_path, index=False)
 
