@@ -5,8 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
-requirements.txt/
+requirements.txt
 
 # Virtual environments
 .venv/
-__pycache__
