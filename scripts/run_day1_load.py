@@ -6,8 +6,10 @@ import logging
 
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+    
 from data_workflow.config import make_paths
 from data_workflow.io import read_orders_csv,read_users_csv, write_parquet
 from data_workflow.transforms import enforce_schema

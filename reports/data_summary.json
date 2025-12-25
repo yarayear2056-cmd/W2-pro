@@ -1,0 +1,12 @@
+{
+  "row_count": {
+    "ord_raw": 5,
+    "ord_clean": 5,
+    "users": 4
+  },
+  "top_3_missing_cols": {
+    "quantity": 0.2,
+    "amount": 0.2,
+    "user_id": 0.0
+  }
+}

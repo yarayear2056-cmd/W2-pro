@@ -47,15 +47,15 @@ def dedupe_keep_latest(df: pd.DataFrame, key_cols: list[str], ts_col: str) -> pd
 
 
 def parse_datetime(df: pd.DataFrame, col: str, *, utc: bool = True) -> pd.DataFrame:
-    dt = pd.to_datetime(df[col], errors="coerce", utc=utc)
-    return df.assign(**{col: dt})
-
+   return df.assign(**{
+        col: pd.to_datetime(df[col], errors="coerce", utc=utc)
+    })
 
 def add_time_parts(df: pd.DataFrame, ts_col: str) -> pd.DataFrame:
     ts = df[ts_col]
     return df.assign(
         date = ts.dt.date,
-        month = ts.dt.to_period("M").astype("string"),
+        month = ts.dt.to_period("M"),
         year = ts.dt.year,
         dow= ts.dt.day_name(),
         hour= ts.dt.hour,
@@ -63,9 +63,8 @@ def add_time_parts(df: pd.DataFrame, ts_col: str) -> pd.DataFrame:
 
 
 def iqr_bounds(s: pd.Series, k: float = 1.5) -> tuple[float, float]:
-    x= s.dropna()
-    Q1 = x.quantile(0.25)
-    Q3 = x.quantile(0.75)
+    Q1 = s.quantile(0.25)
+    Q3 = s.quantile(0.75)
     IQR = Q3 - Q1
     low = Q1 - k * IQR
     up = Q3 + k * IQR
@@ -73,8 +72,8 @@ def iqr_bounds(s: pd.Series, k: float = 1.5) -> tuple[float, float]:
 
 
 def winsorize(s: pd.Series, lo: float = 0.01, hi: float = 0.99) -> pd.Series:
-    x= s.dropna()
-    l , u = x.quantile(lo), x.quantile(hi)
+    l =s.quantile(lo)
+    u = s.quantile(hi)
     return s.clip(lower= l, upper= u)
 
 def add_outlier_flag(df: pd.DataFrame, col: str, *, k: float = 1.5) -> pd.DataFrame:
