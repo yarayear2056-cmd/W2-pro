@@ -1,138 +1,162 @@
-# Data Work Flow Project
+# Data Flow Work  Project
 
-## Project Overview
-This project implements a professional, "offline-first" data pipeline designed to process raw business data and transform it into actionable insights. The focus is on building a reproducible ETL (Extract, Transform, Load) workflow and performing thorough Exploratory Data Analysis (EDA) using high-quality visualization and statistical uncertainty.
+## 📌Project Overview
+This project delivers a complete Data Pipeline built on the "Offline-First" principle. It focuses on transforming Raw Data (orders and users) into Analytics-Ready tables, ensuring data quality, reproducibility, and safety throughout the process.
 
-## Key Learning Objectives
-- **Reproducible ETL:** Building a pipeline that runs from raw data to processed outputs with a single command.
-- **Data Quality:** Implementing fail-fast checks to ensure data integrity.
-- **Advanced EDA:** Using Plotly for interactive charts and Bootstrap for confidence intervals (CIs).
-- **Handoff Quality:** Maintaining a professional repository structure and documentation.
+## 🎯 Key Learning Objectives
+- **Offline-First ETL:** Building a workflow that does not depend on the internet after initial setup, separating data into Raw and Processed stages.
+- **Data Quality(Fail Fast):** Implementing data quality checks that stop execution immediately if critical errors (like missing columns or empty files) are detected.
+- **Safe Joins:** Using safe join strategies (Validate Many-to-One) to prevent row explosions and ensure data integrity.
+- **Advanced EDA:** Conducting exploratory analysis using Plotly for visualization and Bootstrap Intervals for uncertainty estimation.
 
-## Repository Structure
+## 1📂Repository Structure
+The final project structure follows the standard Day 5 layout:
 ```text
 
 ├── data/
-│   ├── raw/          # Immutable source files (CSV/Excel)
-│   ├── cache/        # Cached API responses/downloads
+│   ├── raw/       # Immutable source files (CSV)
+│   ├── cache/
+│   ├── raw/
+│   │    └── orders.csv
+│   │    └── users.csv         
 │   └── processed/    # Final, typed Parquet files (e.g., analytics_table.parquet)
 ├── notebooks/
-│   └── eda.ipynb     # Main analysis notebook (reads from processed data)
+│   └── eda.ipynb     # Main analysis
 ├── reports/
-│   ├── figures/      # Exported Plotly visualizations 
-│   └── summary.md    # Business findings, caveats, and next steps
+│   ├── figures/      #Plotly  visualizations 
+│   ├── missngness_orders.csv
+│   ├──data_summary.json
+│   ├──revenue_by_country.csv
+│   └── summary.md    # findings, caveats
 ├── scripts/
-│   └── run_etl.py    # Main script to execute the entire ETL pipeline
-└── src/data_workfram/
-    ├── config.py     # Centralized path management
-    ├── etl.py        # Core transformation and loading logic
-    ├── joins.py      # Safe join operations and validation
-    └── quality.py    # Data quality and cleaning functions
+│   └── run_etl.py    # Main script to execute 
+the entire ETL pipeline
+│    └── run_day1_load.py
+│    └── run_day2_clean.py
+│    └── run_day3_build_analytics.py
+├── src/data_workflom/
+│            ├── config.py    # Centralized path │            management
+│            ├── etl.py        # ETL Pipeline
+│            ├──io.py
+│            ├── joins.py     # Safe join │            operations 
+│            └── quality.py    # Data quality 
+│            └── viz.py        # Visualization │            Module
+│            └── utils.py       # Resampling
+│            └── transforms.py      # clean 
+├── main.py
+├── .gitignore
+├── README.md
+├── .pythom-version
+└──  pyproject.toml
+
+
 ```    
 
-## How To Run 
- **1.Environment Setup:**
+## ⚙️Preraquisites and Installation :
+ 
+ *Before running this project, make sure you have:* 
+ - ensure you have Python 3.9+
+ - A text editor (VS  Code) or any code  editor.
 
- >source .venv/bin/activate  
- ### Or 
-> .venv\Scripts\Activate.ps1 on Windows [cite: 82]
-pip install -r requirements.txt
+ 1. Clone the repository:
+ ```bash
+https://github.com/yarayear2056-cmd/W2-pro.git
+ ```
 
-**2.Execute the Pipeline:**
->uv run scripts/run_etl.py
+ 2. Setup Virtual Environment:
+ ```bash
+uv sync
+ ```
+or
+```bash
+Windows: 
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-
-### More Info 
-
-## Day 1
-
-
-This project focuses on the initial steps of organizing and cleaning order and user data. The goal is to convert standard CSV files into professional, high-performance Parquet files.
-
-
-## Project Structure
-
-
-* **data/raw** 
-
->Stores immutable input data (original files).
-
-* **data/processed**
-
-> Stores cleaned, analysis-ready outputs.
-
-
-* **scripts**
-
- >Contains the executable run scripts.
-
-
-* **src**
->The core logic and data transformation.
-
- -----
-
-## Day 2
-
-
-**Data Quality Assurance & Refinement**
-
-
-
-Implemented a robust validation framework to transition from basic data structuring to ensuring complete data integrity and logical consistency.
-
-
-
-###  What's New?
-
-
-1. **Quality Guards**:
- The pipeline now "fails fast" if it detects empty files or missing required columns.
-
-
-2. **Range Validation**: 
-Automated checks to ensure amounts and quantities are never negative.
-
-
-3. **Missingness Reports**: 
-Generates a `missingness_orders.csv` report showing the count and percentage of missing data per column.
-
-
-4. **Text Normalization**:
-Standardized text fields (e.g., converting "PAID " and "paid" into a uniform "paid" status).
-
-------
-
-
-## How to Run
-
-Open your Terminal in the project root directory and use the command for your operating system:
-
-### For Windows Users:
+Mac/Linux:
+python -m venv .venv
+source .venv/bin/activate
 
 ```
-powershell
-$env:PYTHONPATH="src"
-uv run scripts/run_day1_load.py
-```
-```
-day2:
 
-$env:PYTHONPATH = "src"
-uv run scripts/run_day2_clean.py
+
+
+## 🚀How To Run
+You can run the project in two ways: executing the full Pipeline (Recommended) or running each stage individually.
+
+ **Option 1: Run Full ETL (Recommended)**
+
+*This script reads raw data, cleans it, joins it, and saves the final outputs and metadata.* 
+```bash
+python scripts/run_etl.py
+```
+
+**Option 2: Step-by-Step Workflow**
+
+*Step 1: Load Raw Data **Day 1** Convert CSV files to Parquet while preserving data types (Typed I/O)* 
+
+```bash
+$env:PYTHONPATH = "src"       
+uv run .\scripts\run_day1_load.py                                
+```
+*Step 2: Clean & Verify **Day 2**Apply quality rules, normalize text, and save the missingness report.* 
+
+```bash
+$env:PYTHONPATH = "src"       
+uv run .\scripts\run_day2_clean.py                                
+```
+*Step 3: Build Analytics Table **Day 3** Handle dates, manage outliers, and merge tables using Safe Join.* 
+
+```bash
+$env:PYTHONPATH = "src"       
+uv run .\scripts\run_day3_build_analytics.py                                
 ```
 
 
-### For Mac & Linux Users
+## 🔍 Features (Day by Day)
+**Day 1: Foundations**
+- Set up standard project structure.
 
-```
-export PYTHONPATH=src
-uv run scripts/run_day1_load.py
-```
+- Implement config.py for path management using pathlib.
 
-```
-day2:
+- Convert data to Parquet format to preserve Dtypes.
 
-export PYTHONPATH=src
-uv run scripts/run_day2_clean.py
-```
+**Day 2: Data Quality & Cleaning**
+
+- Fail Fast: Stop execution immediately if files are empty or columns are missing.
+
+
+- Missingness: Generate automated reports for missing values instead of arbitrary deletion.
+
+
+- Text Normalization: Standardize text cases (e.g., "Paid" and "paid" become "paid").
+
+**Day 3: Feature Engineering & Joins**
+
+- Time Parts: Extract Month, Day, and Hour from created_at.
+
+
+- Safe Joins: Validate key uniqueness before merging (One-to-Many Validation).
+
+
+- Outliers: Use Winsorization to handle extreme values in visualizations.
+
+**Day 4: EDA & Visualization**
+- Create eda.ipynb reading only from data/processed.
+
+- Export charts as PNG files to the reports/figures folder.
+
+- Compute Bootstrap Confidence Intervals to compare means.
+
+**Day 5: Production Pipeline**
+- Consolidate all steps into a single run_etl() function.
+
+- Generate _run_meta.json containing run statistics to ensure traceability.
+
+- Write the final summary.md
+
+
+
+
+![image here](https://blog.bismart.com/hubfs/Imported_Blog_Media/ETL%20vs%20ELT%20proceso%20y%20arquitectura-Sep-26-2023-08-49-27-9469-AM.jpg)
+
